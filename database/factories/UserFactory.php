@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'sex' => fake()->randomElement(['male', 'female']),
             'birth_date' => $birthDate,
             'email_verified_at' => now(),
-            'password' =>  Hash::make('qaz123'), //'$2y$12$qeQz.BgFUlHagd9I18xUu.RBFks.hLdPhH4qig5t0QoDg59UEW6Yy', // default qaz123
+            'password' =>  Hash::make('qaz123'),
             'remember_token' => Str::random(10),
         ];
     }

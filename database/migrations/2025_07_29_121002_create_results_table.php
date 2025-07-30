@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patientId')->constrained('patients')->onDelete('restrict');
-            $table->foreignId('orderId')->constrained('orders')->onDelete('restrict');
-            $table->string('testName');
-            $table->string('testValue');
-            $table->string('testReference');
+            $table->foreignId('patient_id')->constrained('users')->onDelete('restrict');
+            $table->foreignId('order_id')->constrained('orders')->onDelete('restrict');
+            $table->string('test_name');
+            $table->string('test_value');
+            $table->string('test_reference');
             $table->timestamps();
         });
     }

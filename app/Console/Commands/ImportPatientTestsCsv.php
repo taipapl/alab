@@ -2,12 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Patient;
-use App\Models\Order;
-use Illuminate\Support\Facades\Log;
-use League\Csv\Reader;
 use Exception;
+use App\Models\User;
+use App\Models\Order;
+use App\Models\Result;
+use League\Csv\Reader;
+use Illuminate\Support\Arr;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ImportPatientTestsCsv extends Command
 {
@@ -30,72 +32,74 @@ class ImportPatientTestsCsv extends Command
     {
         $filePath = $this->argument('file');
 
-        // Sprawdź, czy plik istnieje
         if (!file_exists($filePath)) {
-            $this->error("Plik CSV nie istnieje pod ścieżką: {$filePath}");
-            Log::error("ImportPatientTestsCsv: Plik nie istnieje - {$filePath}");
+            $this->error("File does not exist: {$filePath}");
+            Log::error("ImportPatientTestsCsv: File does not exist: {$filePath}");
             return Command::FAILURE;
         }
 
-        $this->info("Rozpoczynanie importu danych z pliku: {$filePath}");
+        $this->info("Importing data from file: {$filePath}");
 
         try {
-            // Utwórz czytnik CSV
             $csv = Reader::createFromPath($filePath, 'r');
-            $csv->setHeaderOffset(0); // Ustaw pierwszy wiersz jako nagłówek
+            $csv->setDelimiter(';'); // Dodano separator średnika
+            $csv->setHeaderOffset(0);
 
-            // Konwertuj iterator na tablicę, aby móc użyć count()
             $records = iterator_to_array($csv->getRecords());
+
             $importedCount = 0;
             $skippedCount = 0;
-            $totalRows = count($records); // Liczba wszystkich wierszy danych (bez nagłówka)
+            $totalRows = count($records);
 
             $this->output->progressStart($totalRows);
 
             foreach ($records as $offset => $record) {
-                $lineNumber = $offset + 2; // +1 dla nagłówka, +1 dla indeksu od 0
 
-                // Mapowanie nazw kolumn z CSV na nazwy pól w bazie danych
+                $lineNumber = $offset + 2;
+
                 $data = [
-                    'patientName'      => $record['patientName'] ?? null,
-                    'patientSurname'   => $record['patientSurname'] ?? null,
-                    'patientSex'       => strtolower($record['patientSex'] ?? '') === 'male' ? 'male' : (strtolower($record['patientSex'] ?? '') === 'female' ? 'female' : null), // Normalizacja płci
-                    'patientBirthDate' => $record['patientBirthDate'] ?? null,
-                    'order_id'         => $record['orderId'] ?? null, // Klucz obcy
-                    'testName'         => $record['testName'] ?? null,
-                    'testValue'        => $record['testValue'] ?? null,
-                    'testReference'    => $record['testReference'] ?? null,
+                    'patient_id' => $record['patientId'] ?? null,
+                    'name'      => $record['patientName'] ?? null,
+                    'surname'   => $record['patientSurname'] ?? null,
+                    'sex'       => strtolower($record['patientSex'] ?? '') === 'male' ? 'male' : (strtolower($record['patientSex'] ?? '') === 'female' ? 'female' : null), // Normalizacja płci
+                    'birth_date' => $record['patientBirthDate'] ?? null,
+                    'order_id'         => $record['orderId'] ?? null,
+                    'test_name'         => $record['testName'] ?? null,
+                    'test_value'        => $record['testValue'] ?? null,
+                    'test_reference'    => $record['testReference'] ?? null,
                 ];
 
-                // --- Walidacja danych i sprawdzenie relacji orderId ---
                 $errors = [];
 
-                // Sprawdzenie obecności wymaganych pól
-                if (empty($data['patientName'])) $errors[] = 'Brak patientName.';
-                if (empty($data['patientSurname'])) $errors[] = 'Brak patientSurname.';
-                if (!in_array($data['patientSex'], ['male', 'female'])) $errors[] = 'Nieprawidłowa wartość patientSex (oczekiwano "male" lub "female").';
-                if (empty($data['patientBirthDate'])) {
+                if (empty($data['name'])) $errors[] = 'Brak patientName.';
+                if (empty($data['surname'])) $errors[] = 'Brak patientSurname.';
+                if (!in_array($data['sex'], ['male', 'female'])) $errors[] = 'Nieprawidłowa wartość patientSex (oczekiwano "male" lub "female").';
+                if (empty($data['birth_date'])) {
                     $errors[] = 'Brak patientBirthDate.';
                 } else {
                     try {
-                        // Próba utworzenia obiektu daty w celu walidacji formatu
-                        new \DateTime($data['patientBirthDate']);
+                        new \DateTime($data['birth_date']);
                     } catch (Exception $e) {
                         $errors[] = 'Nieprawidłowy format daty patientBirthDate.';
                     }
                 }
                 if (empty($data['order_id'])) $errors[] = 'Brak orderId.';
-                if (empty($data['testName'])) $errors[] = 'Brak testName.';
-                if (empty($data['testValue'])) $errors[] = 'Brak testValue.';
-                if (empty($data['testReference'])) $errors[] = 'Brak testReference.';
+                if (empty($data['test_name'])) $errors[] = 'Brak testName.';
+                if (empty($data['test_value'])) $errors[] = 'Brak testValue.';
 
-
-                // Sprawdzenie relacji orderId
                 $orderExists = false;
                 if (!empty($data['order_id'])) {
-                    $orderExists = Order::where('orderId', $data['order_id'])->exists();
+                    $orderExists = Order::where('id', $data['order_id'])->exists();
                     if (!$orderExists) {
-                        $errors[] = "Brak powiązania z orderId: {$data['order_id']} w tabeli 'orders'.";
+                        $errors[] = "Brak powiązania z order_id: {$data['order_id']} w tabeli 'orders'.";
+                    }
+                }
+
+                $patientExists = false;
+                if (!empty($data['patien_id'])) {
+                    $patientExists = User::where('id', $data['patien_id'])->exists();
+                    if (!$patientExists) {
+                        $errors[] = "Brak powiązania z patient_id: {$data['patient_id']} w tabeli 'users'.";
                     }
                 }
 
@@ -105,12 +109,12 @@ class ImportPatientTestsCsv extends Command
                     $this->warn($errorMessage);
                     Log::warning("ImportPatientTestsCsv: " . $errorMessage);
                     $this->output->progressAdvance();
-                    continue; // Przejdź do następnego wiersza
+                    continue;
                 }
 
-                // --- Zapis do bazy danych ---
+                //dd(Arr::only($data, ['patient_id', 'order_id', 'test_name', 'test_value', 'test_reference']));
                 try {
-                    Patient::create($data);
+                    Result::create(Arr::only($data, ['patient_id', 'order_id', 'test_name', 'test_value', 'test_reference']));
                     $importedCount++;
                 } catch (Exception $e) {
                     $skippedCount++;
