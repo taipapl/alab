@@ -12,9 +12,6 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-
-        dd('Login endpoint hit');
-
         $validator = Validator::make($request->all(), [
             'username' => 'required|string',
             'password' => 'required|string',
