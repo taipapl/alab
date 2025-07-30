@@ -23,11 +23,15 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $birthDate = fake()->dateTimeBetween('-100 years', '-18 years');
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'username' => fake()->unique()->userName(),
+            'name' => fake()->firstName(),
+            'surname' => fake()->lastName(),
+            'sex' => fake()->randomElement(['male', 'female']),
+            'birth_date' => $birthDate,
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' =>  Hash::make('qaz123'), //'$2y$12$qeQz.BgFUlHagd9I18xUu.RBFks.hLdPhH4qig5t0QoDg59UEW6Yy', // default qaz123
             'remember_token' => Str::random(10),
         ];
     }
@@ -37,7 +41,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }

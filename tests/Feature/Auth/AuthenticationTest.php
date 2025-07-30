@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
@@ -11,11 +12,13 @@ test('login screen can be rendered', function () {
 });
 
 test('users can authenticate using the login screen', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'password' => Hash::make('qaz123')
+    ]);
 
     $response = $this->post('/login', [
-        'email' => $user->email,
-        'password' => 'password',
+        'username' => $user->username,
+        'password' => 'qaz123',
     ]);
 
     $this->assertAuthenticated();
@@ -26,7 +29,7 @@ test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 
     $this->post('/login', [
-        'email' => $user->email,
+        'username' => $user->username,
         'password' => 'wrong-password',
     ]);
 
