@@ -71,27 +71,27 @@ class ImportPatientTestsCsv extends Command
 
                 $errors = [];
 
-                if (empty($data['name'])) $errors[] = 'Brak patientName.';
-                if (empty($data['surname'])) $errors[] = 'Brak patientSurname.';
-                if (!in_array($data['sex'], ['male', 'female'])) $errors[] = 'Nieprawidłowa wartość patientSex (oczekiwano "male" lub "female").';
+                if (empty($data['name'])) $errors[] = 'Empty patientName.';
+                if (empty($data['surname'])) $errors[] = 'Empty patientSurname.';
+                if (!in_array($data['sex'], ['male', 'female'])) $errors[] = 'Invalid patientSex value (expected "male" or "female").';
                 if (empty($data['birth_date'])) {
-                    $errors[] = 'Brak patientBirthDate.';
+                    $errors[] = 'None patientBirthDate.';
                 } else {
                     try {
                         new \DateTime($data['birth_date']);
                     } catch (Exception $e) {
-                        $errors[] = 'Nieprawidłowy format daty patientBirthDate.';
+                        $errors[] = 'Invalid patientBirthDate format. Expected format: YYYY-MM-DD.';
                     }
                 }
-                if (empty($data['order_id'])) $errors[] = 'Brak orderId.';
-                if (empty($data['test_name'])) $errors[] = 'Brak testName.';
-                if (empty($data['test_value'])) $errors[] = 'Brak testValue.';
+                if (empty($data['order_id'])) $errors[] = 'None orderId.';
+                if (empty($data['test_name'])) $errors[] = 'None testName.';
+                if (empty($data['test_value'])) $errors[] = 'None testValue.';
 
                 $orderExists = false;
                 if (!empty($data['order_id'])) {
                     $orderExists = Order::where('id', $data['order_id'])->exists();
                     if (!$orderExists) {
-                        $errors[] = "Brak powiązania z order_id: {$data['order_id']} w tabeli 'orders'.";
+                        $errors[] = "No relation found for order_id: {$data['order_id']} in 'orders' table.";
                     }
                 }
 
@@ -99,26 +99,25 @@ class ImportPatientTestsCsv extends Command
                 if (!empty($data['patien_id'])) {
                     $patientExists = User::where('id', $data['patien_id'])->exists();
                     if (!$patientExists) {
-                        $errors[] = "Brak powiązania z patient_id: {$data['patient_id']} w tabeli 'users'.";
+                        $errors[] = "No relation found for patient_id: {$data['patient_id']} in 'users' table.";
                     }
                 }
 
                 if (!empty($errors)) {
                     $skippedCount++;
-                    $errorMessage = "\n Pomijanie wiersza {$lineNumber} z powodu błędów: " . implode(', ', $errors) . " Dane: " . json_encode($record);
+                    $errorMessage = "\n Skip the line {$lineNumber} with reasen: " . implode(', ', $errors) . " Data: " . json_encode($record);
                     $this->warn($errorMessage);
                     Log::warning("ImportPatientTestsCsv: " . $errorMessage);
                     $this->output->progressAdvance();
                     continue;
                 }
 
-                //dd(Arr::only($data, ['patient_id', 'order_id', 'test_name', 'test_value', 'test_reference']));
                 try {
                     Result::create(Arr::only($data, ['patient_id', 'order_id', 'test_name', 'test_value', 'test_reference']));
                     $importedCount++;
                 } catch (Exception $e) {
                     $skippedCount++;
-                    $errorMessage = "Błąd podczas zapisu wiersza {$lineNumber} do bazy danych: " . $e->getMessage() . " Dane: " . json_encode($record);
+                    $errorMessage = "\n Error on line {$lineNumber}: " . $e->getMessage() . " Data: " . json_encode($record);
                     $this->error($errorMessage);
                     Log::error("ImportPatientTestsCsv: " . $errorMessage);
                 }
@@ -126,14 +125,14 @@ class ImportPatientTestsCsv extends Command
             }
 
             $this->output->progressFinish();
-            $this->info("Import zakończony!");
-            $this->info("Zaimportowano rekordów: {$importedCount}");
-            $this->warn("Pominięto rekordów: {$skippedCount}");
+            $this->info("Import completed successfully.");
+            $this->info("Imported records: {$importedCount}");
+            $this->warn("Skipped records: {$skippedCount}");
 
             return Command::SUCCESS;
         } catch (Exception $e) {
-            $this->error("Wystąpił nieoczekiwany błąd podczas importu: " . $e->getMessage());
-            Log::critical("ImportPatientTestsCsv: Nieoczekiwany błąd - " . $e->getMessage());
+            $this->error("An unexpected error occurred: " . $e->getMessage());
+            Log::critical("ImportPatientTestsCsv: An unexpected error - " . $e->getMessage());
             return Command::FAILURE;
         }
     }
