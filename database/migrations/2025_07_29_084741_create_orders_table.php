@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
+            $table->string('order_number')->unique();
+            $table->string('source')->nullable();
             $table->timestamps();
         });
     }

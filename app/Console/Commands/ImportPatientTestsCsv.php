@@ -87,19 +87,28 @@ class ImportPatientTestsCsv extends Command
                 if (empty($data['test_name'])) $errors[] = 'None testName.';
                 if (empty($data['test_value'])) $errors[] = 'None testValue.';
 
-                $orderExists = false;
-                if (!empty($data['order_id'])) {
-                    $orderExists = Order::where('id', $data['order_id'])->exists();
-                    if (!$orderExists) {
-                        $errors[] = "No relation found for order_id: {$data['order_id']} in 'orders' table.";
-                    }
-                }
-
                 $patientExists = false;
                 if (!empty($data['patien_id'])) {
                     $patientExists = User::where('id', $data['patien_id'])->exists();
                     if (!$patientExists) {
                         $errors[] = "No relation found for patient_id: {$data['patient_id']} in 'users' table.";
+                    }
+                }
+
+                $orderExists = false;
+                if (!empty($data['order_id'])) {
+                    $orderExists = Order::find($data['order_id']);
+                    if (!$orderExists) {
+
+                        $order = Order::create([
+                            'patient_id' => $data['patient_id'],
+                            'order_number' => \Illuminate\Support\Str::uuid()->toString(),
+                            'source' => 'import',
+                        ]);
+                        if ($order) {
+                            $this->info("Created new order with ID: {$order->id} for patient ID: {$data['patient_id']}");
+                            $data['order_id'] = $order->id;
+                        }
                     }
                 }
 

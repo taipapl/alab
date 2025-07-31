@@ -29,18 +29,26 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (TokenExpiredException $e, $request) {
-            return response()->json(['message' => 'Token expired'], 401);
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Token expired'], 401);
+            }
         });
 
         $exceptions->renderable(function (TokenInvalidException $e, $request) {
-            return response()->json(['message' => 'Token is invalid'], 401);
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Token is invalid'], 401);
+            }
         });
 
         $exceptions->renderable(function (JWTException $e, $request) {
-            return response()->json(['message' => 'Token not provided or malformed'], 401);
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Token missing or malformed'], 401);
+            }
         });
 
         $exceptions->renderable(function (AuthenticationException $e, $request) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
         });
     })->create();

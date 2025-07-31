@@ -15,13 +15,15 @@ class ResultsController extends Controller
         $orders = Order::where('patient_id', $user->id)->get()->map(function ($order) {
             return [
                 'orderId' => $order->id,
-                'results' => Result::where('order_id', $order->id)->get()->map(function ($result) {
-                    return [
-                        'name' => $result->name,
-                        'value' => $result->value,
-                        'reference' => $result->reference,
-                    ];
-                }),
+                'results' => Result::where('order_id', $order->id)
+                    ->orderBy('created_at', 'desc')
+                    ->get()->map(function ($result) {
+                        return [
+                            'name' => $result->test_name,
+                            'value' => $result->test_value,
+                            'reference' => $result->test_reference,
+                        ];
+                    }),
             ];
         });
 

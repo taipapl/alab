@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,11 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'patient_id' => \App\Models\User::factory(),
+            'order_number' => Str::uuid()->toString(),
+            'source' => $this->faker->optional()->randomElement(['user', 'import']),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
