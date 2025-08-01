@@ -27,21 +27,19 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): \Illuminate\Http\RedirectResponse
     {
-
         $request->authenticate();
         $request->session()->regenerate();
 
-
-
-        // Dodaj generowanie tokena JWT
         $user = $request->user();
         $token = app(\Tymon\JWTAuth\JWTAuth::class)->fromUser($user);
-        // Przekaż token do sesji, aby odebrać go w Login.vue
         session(['jwt_token' => $token]);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // return redirect()->intended(route('dashboard', absolute: false));
+
+        // Przekierowanie z tokenem jako query param
+        return redirect()->route('dashboard', ['jwt' => $token]);
     }
 
     /**

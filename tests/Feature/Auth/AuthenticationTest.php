@@ -21,8 +21,13 @@ test('users can authenticate using the login screen', function () {
         'password' => 'qaz123',
     ]);
 
+    $tokenFromResponse = session('jwt_token');
+
+
+    // Porównaj strukturę tokenów lub kluczowe dane
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $this->assertNotEmpty($tokenFromResponse);
+    $response->assertRedirect(route('dashboard', ['jwt' => $tokenFromResponse], absolute: false));
 });
 
 test('users can not authenticate with invalid password', function () {

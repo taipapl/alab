@@ -3,8 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import { onMounted, ref } from 'vue';
-import axios from 'axios';
+import ActivityMonitor from '../components/ActivityMonitor.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,30 +12,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const patientData = ref(null);
-const error = ref(null);
-const loading = ref(true);
-
-onMounted(async () => {
-    try {
-        const response = await axios.get('/api/results', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-            },
-        });
-        patientData.value = response.data;
-    } catch (err) {
-        error.value = 'Brak dostępu lub sesja wygasła. Zaloguj się ponownie.';
-        if (err.response && err.response.status === 401) {
-            localStorage.removeItem('jwt');
-            // Wyloguj z sesji
-            await axios.post('/logout');
-            window.location.href = '/login';
-        }
-    } finally {
-        loading.value = false;
-    }
-});
 </script>
 
 <template>
@@ -44,6 +19,7 @@ onMounted(async () => {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
+        <ActivityMonitor />
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
                 <div
