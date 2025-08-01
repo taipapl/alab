@@ -12,6 +12,7 @@ class DashboardController extends Controller
         $user = $request->user()->load('results');
 
         return Inertia::render('Dashboard', [
+            'status' => $request->session()->get('status'),
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
