@@ -44,7 +44,7 @@ function resetInactivityTimer() {
             if (response.status !== 200) {
                 await logout();
             }
-        } catch (error) {
+        } catch {
             await logout();
         }
     }, INACTIVITY_LIMIT);
