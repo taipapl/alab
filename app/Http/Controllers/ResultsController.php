@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Result;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ResultsController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $user = auth()->user();
 

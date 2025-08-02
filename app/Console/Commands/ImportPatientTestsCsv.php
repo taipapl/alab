@@ -30,7 +30,7 @@ class ImportPatientTestsCsv extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $filePath = $this->argument('file');
 
@@ -103,8 +103,8 @@ class ImportPatientTestsCsv extends Command
                 }
 
                 $patientExists = false;
-                if (! empty($data['patien_id'])) {
-                    $patientExists = User::where('id', $data['patien_id'])->exists();
+                if (! empty($data['patient_id'])) {
+                    $patientExists = User::where('id', $data['patient_id'])->exists();
                     if (! $patientExists) {
                         $errors[] = "No relation found for patient_id: {$data['patient_id']} in 'users' table.";
                     }
@@ -120,18 +120,17 @@ class ImportPatientTestsCsv extends Command
                             'order_number' => \Illuminate\Support\Str::uuid()->toString(),
                             'source' => 'import',
                         ]);
-                        if ($order) {
-                            $this->info("Created new order with ID: {$order->id} for patient ID: {$data['patient_id']}");
-                            $data['order_id'] = $order->id;
-                        }
+
+                        $this->info("Created new order with ID: {$order->id} for patient ID: {$data['patient_id']}");
+                        $data['order_id'] = $order->id;
                     }
                 }
 
                 if (! empty($errors)) {
                     $skippedCount++;
-                    $errorMessage = "\n Skip the line {$lineNumber} with reasen: ".implode(', ', $errors).' Data: '.json_encode($record);
+                    $errorMessage = "\n Skip the line {$lineNumber} with reasen: " . implode(', ', $errors) . ' Data: ' . json_encode($record);
                     $this->warn($errorMessage);
-                    Log::warning('ImportPatientTestsCsv: '.$errorMessage);
+                    Log::warning('ImportPatientTestsCsv: ' . $errorMessage);
                     $this->output->progressAdvance();
 
                     continue;
@@ -142,9 +141,9 @@ class ImportPatientTestsCsv extends Command
                     $importedCount++;
                 } catch (Exception $e) {
                     $skippedCount++;
-                    $errorMessage = "\n Error on line {$lineNumber}: ".$e->getMessage().' Data: '.json_encode($record);
+                    $errorMessage = "\n Error on line {$lineNumber}: " . $e->getMessage() . ' Data: ' . json_encode($record);
                     $this->error($errorMessage);
-                    Log::error('ImportPatientTestsCsv: '.$errorMessage);
+                    Log::error('ImportPatientTestsCsv: ' . $errorMessage);
                 }
                 $this->output->progressAdvance();
             }
@@ -156,8 +155,8 @@ class ImportPatientTestsCsv extends Command
 
             return Command::SUCCESS;
         } catch (Exception $e) {
-            $this->error('An unexpected error occurred: '.$e->getMessage());
-            Log::critical('ImportPatientTestsCsv: An unexpected error - '.$e->getMessage());
+            $this->error('An unexpected error occurred: ' . $e->getMessage());
+            Log::critical('ImportPatientTestsCsv: An unexpected error - ' . $e->getMessage());
 
             return Command::FAILURE;
         }

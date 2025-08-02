@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Result extends Model
 {
+    /** @use HasFactory<\Database\Factories\ResultFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,22 +19,29 @@ class Result extends Model
         'test_reference',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
         'result_date' => 'datetime',
     ];
 
-    public function patient()
+    /**
+     * Define the relationship with the patient.
+     *
+     * @return BelongsTo<User, Result>
+     */
+    public function patient(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        /** @var BelongsTo<User, Result> */
+        return $this->belongsTo(User::class, 'patient_id');
     }
 
-    public function order()
+    /**
+     * Define the relationship with the order.
+     *
+     * @return BelongsTo<Order, Result>
+     */
+    public function order(): BelongsTo
     {
+        /** @var BelongsTo<Order, Result> */
         return $this->belongsTo(Order::class);
     }
 }
