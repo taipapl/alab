@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Order;
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 
 class OrderSeeder extends Seeder
 {

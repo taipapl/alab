@@ -24,13 +24,14 @@ class UserFactory extends Factory
     public function definition(): array
     {
         $birthDate = fake()->dateTimeBetween('-100 years', '-18 years');
+
         return [
             'username' => fake()->unique()->userName(),
             'name' => fake()->firstName(),
             'surname' => fake()->lastName(),
             'sex' => fake()->randomElement(['male', 'female']),
             'birth_date' => $birthDate,
-            'password' =>  Hash::make('qaz123'),
+            'password' => Hash::make('qaz123'),
             'remember_token' => Str::random(10),
         ];
     }

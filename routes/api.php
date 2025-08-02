@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ResultsController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/tokenCheck', function () {
     return response()->json(['status' => 'ok']);

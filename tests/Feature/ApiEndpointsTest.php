@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
 use App\Models\Order;
 use App\Models\Result;
+use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
@@ -58,8 +58,8 @@ test('returns patient data and results for authenticated user', function () {
         ->assertJsonStructure([
             'patient' => ['id', 'name', 'surname', 'sex', 'birthDate'],
             'orders' => [
-                ['orderId', 'results' => [['name', 'value', 'reference']]]
-            ]
+                ['orderId', 'results' => [['name', 'value', 'reference']]],
+            ],
         ]);
 });
 

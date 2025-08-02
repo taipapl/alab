@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Result;
+use Illuminate\Http\Request;
 
 class ResultsController extends Controller
 {

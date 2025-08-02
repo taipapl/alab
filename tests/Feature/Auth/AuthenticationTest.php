@@ -13,7 +13,7 @@ test('login screen can be rendered', function () {
 
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create([
-        'password' => Hash::make('qaz123')
+        'password' => Hash::make('qaz123'),
     ]);
 
     $response = $this->post('/login', [
@@ -22,7 +22,6 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $tokenFromResponse = session('jwt_token');
-
 
     // Porównaj strukturę tokenów lub kluczowe dane
     $this->assertAuthenticated();

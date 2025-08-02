@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Result extends Model
 {
@@ -14,7 +14,7 @@ class Result extends Model
         'order_id',
         'test_name',
         'test_value',
-        'test_reference'
+        'test_reference',
     ];
 
     /**
