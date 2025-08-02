@@ -27,7 +27,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        $token = JWTAuth::fromUser($user);
+        $token = JWTAuth::fromUser($user); // @phpstan-ignore-line
 
         return response()->json(['token' => $token]);
     }

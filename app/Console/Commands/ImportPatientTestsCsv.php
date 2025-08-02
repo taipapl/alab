@@ -128,9 +128,9 @@ class ImportPatientTestsCsv extends Command
 
                 if (! empty($errors)) {
                     $skippedCount++;
-                    $errorMessage = "\n Skip the line {$lineNumber} with reasen: " . implode(', ', $errors) . ' Data: ' . json_encode($record);
+                    $errorMessage = "\n Skip the line {$lineNumber} with reasen: ".implode(', ', $errors).' Data: '.json_encode($record);
                     $this->warn($errorMessage);
-                    Log::warning('ImportPatientTestsCsv: ' . $errorMessage);
+                    Log::warning('ImportPatientTestsCsv: '.$errorMessage);
                     $this->output->progressAdvance();
 
                     continue;
@@ -141,9 +141,9 @@ class ImportPatientTestsCsv extends Command
                     $importedCount++;
                 } catch (Exception $e) {
                     $skippedCount++;
-                    $errorMessage = "\n Error on line {$lineNumber}: " . $e->getMessage() . ' Data: ' . json_encode($record);
+                    $errorMessage = "\n Error on line {$lineNumber}: ".$e->getMessage().' Data: '.json_encode($record);
                     $this->error($errorMessage);
-                    Log::error('ImportPatientTestsCsv: ' . $errorMessage);
+                    Log::error('ImportPatientTestsCsv: '.$errorMessage);
                 }
                 $this->output->progressAdvance();
             }
@@ -155,8 +155,8 @@ class ImportPatientTestsCsv extends Command
 
             return Command::SUCCESS;
         } catch (Exception $e) {
-            $this->error('An unexpected error occurred: ' . $e->getMessage());
-            Log::critical('ImportPatientTestsCsv: An unexpected error - ' . $e->getMessage());
+            $this->error('An unexpected error occurred: '.$e->getMessage());
+            Log::critical('ImportPatientTestsCsv: An unexpected error - '.$e->getMessage());
 
             return Command::FAILURE;
         }
